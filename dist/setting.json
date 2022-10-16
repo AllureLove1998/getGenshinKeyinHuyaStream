@@ -1,7 +1,7 @@
 {
   "weburl": "https://zt.huya.com/25235/pc/index.html",
-  "huya": { "username": "xxxxxx", "id": "xxxxx", "password": "xxxx", "login_method": "scan" },
-  "database": { "localhost": "localhost", "user": "root", "password": "xxxxx" },
+  "huya": { "username": "xxxxx", "id": "xxxxx", "password": "xxxx", "login_method": "scan" },
+  "database": { "localhost": "localhost", "user": "root", "password": "xxxxxx" },
   "email": {
     "sender": "xxxx@xxx.com",
     "receiver": "xxx@xxx.com",
