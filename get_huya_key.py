@@ -256,14 +256,14 @@ class getHuyaKey(object):
     def get_info(self):
         self.createDatabse()
         try:
-            firstelement = self.driver.find_element_by_xpath('//*[@id="matchComponent4"]/div/div[1]/div/div[2]') #切换到开播页面
+            firstelement = self.driver.find_element(By.XPATH,'//*[@id="matchComponent4"]/div/div[1]/div/div[2]')#切换到开播页面
             # print(firstelement.get_attribute('outerHTML'))
             firstelement.click()
             time.sleep(3)
-            secondelement = self.driver.find_element_by_xpath('//*[@id="matchComponent14"]/div/div[1]/div[1]/div/div[2]/div[1]/div') #点击查询历史
+            secondelement = self.driver.find_element(By.XPATH,'//*[@id="matchComponent14"]/div/div[1]/div[1]/div/div[2]/div[1]/div') #点击查询历史
             secondelement.click()
             time.sleep(3)
-            key_list = self.driver.find_elements_by_xpath('//*[@id="matchComponent14"]/div[2]/div/div/div/ol/li') #获得所有激活码信息
+            key_list = self.driver.find_elements(By.XPATH,'//*[@id="matchComponent14"]/div[2]/div/div/div/ol/li') #获得所有激活码信息
             strLog = "获得激活码信息，共{0}个".format(len(key_list))
             print(strLog)
             self.writelog(strLog)
@@ -427,24 +427,38 @@ class getHuyaKey(object):
         ch_options.add_argument('--no-sandbox')
         ch_options.add_argument('--disable-gpu')
         ch_options.add_argument('--disable-dev-shm-usage')
+        if self.json_setting['platform'] == "linux64":
+            chrome_driver_name = "chromedriver"
+        else:
+            chrome_driver_name = "chromedriver.exe"
         try:    #打包的时候加入library读取
             chromedriver_path = os.path.join(sys._MEIPASS, "chromedriver.exe")
             driver = webdriver.Chrome(chromedriver_path,options=ch_options)
         except:  #直接用本文档的chromedriver
-            if os.path.exists("chromedriver.exe"): #如果存在本地文件
+            if os.path.exists(chrome_driver_name): #如果存在本地文件
                 try:
-                        driver = webdriver.Chrome(executable_path='chromedriver.exe',options=ch_options) 
+                    chromedriver_path = os.path.abspath(chrome_driver_name)
+                    strLog = '本地存在{0}，路径为{1}'.format(chrome_driver_name,chromedriver_path)
+                    print(strLog)
+                    self.writelog(strLog)
+                    print(chromedriver_path)
+                    driver = webdriver.Chrome(executable_path=chromedriver_path,options=ch_options) 
                 except:
-                    os.remove("chromedriver.exe")
-                    strLog = '本地存在chromedriver，已移除'
+                    os.remove(chrome_driver_name)
+                    strLog = '已移除本地{0}'.format(chrome_driver_name)
                     print(strLog)
                     self.writelog(strLog)
                     driver_path = autodriver.chromedriver(platform = self.json_setting['platform'])
                     print(driver_path)
+                    if self.json_setting['platform'] == "linux64":
+                        os.system("chmod +x chromedriver")
                     driver = webdriver.Chrome(executable_path=driver_path,options=ch_options)
             else:   #如果不存在本地文件，则下载
                 driver_path = autodriver.chromedriver(platform = self.json_setting['platform'])
-                strLog = "已下载chromedriver驱动,路径为{0}".format(driver_path)
+                strLog = "已下载驱动{0},路径为{1}".format(chrome_driver_name,driver_path)
+                if self.json_setting['platform'] == "linux64":
+                    os.system("chmod +x chromedriver")
+                    # os.system("/bin/cp -rf chromedriver /usr/bin/")
                 print(strLog)
                 self.writelog(strLog)
                 driver = webdriver.Chrome(executable_path=driver_path,options=ch_options)

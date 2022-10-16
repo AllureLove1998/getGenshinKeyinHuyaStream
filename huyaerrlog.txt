@@ -1,4 +1,0 @@
-[2022-10-16, 20:03:57]   Error '[Errno 2] No such file or directory: 'cookies.pkl'' happened on line 234
-[2022-10-16, 20:04:10]   Error '[Errno 2] No such file or directory: 'cookies.pkl'' happened on line 234
-[2022-10-16, 20:04:38]   Error '[Errno 2] No such file or directory: 'cookies.pkl'' happened on line 234
-[2022-10-16, 20:14:39]   Error '[Errno 2] No such file or directory: 'cookies.pkl'' happened on line 234
