@@ -1,3 +1,5 @@
+from multiprocessing import managers
+from multiprocessing.dummy import Manager
 import time
 import pickle
 from selenium.webdriver.support.ui import WebDriverWait
@@ -14,6 +16,8 @@ import datetime
 import smtplib
 from email.mime.text import MIMEText
 from email.header import Header
+from selenium.webdriver.edge.service import Service
+from toollib import autodriver
 
 
 class getHuyaKey(object):
@@ -22,13 +26,7 @@ class getHuyaKey(object):
         self.username = ''
         self.db = pymysql.connect(host=self.json_setting['database']['localhost'], user=self.json_setting['database']['user'], password=self.json_setting['database']['password'], port=3306)
         self.cursor = self.db.cursor()
-        ch_options = webdriver.ChromeOptions()#为Chrome配置无头模式
-        ch_options.add_argument("--headless")
-        ch_options.add_argument('--no-sandbox')
-        ch_options.add_argument('--disable-gpu')
-        ch_options.add_argument('--disable-dev-shm-usage')
-        # ch_options.add_experimental_option('detach', True)
-        self.driver = webdriver.Chrome(options=ch_options)
+        self.driver = self.getDriver()
         self.driver.get(self.json_setting['weburl'])
 
     def main(self):
@@ -421,6 +419,36 @@ class getHuyaKey(object):
         strLog = "脚本执行完毕\n\n"
         print(strLog)
         self.writelog(strLog)
+
+    #设置webdriver驱动
+    def getDriver(self):
+        ch_options = webdriver.ChromeOptions()#为Chrome配置无头模式
+        ch_options.add_argument("--headless")
+        ch_options.add_argument('--no-sandbox')
+        ch_options.add_argument('--disable-gpu')
+        ch_options.add_argument('--disable-dev-shm-usage')
+        try:    #打包的时候加入library读取
+            chromedriver_path = os.path.join(sys._MEIPASS, "chromedriver.exe")
+            driver = webdriver.Chrome(chromedriver_path,options=ch_options)
+        except:  #直接用本文档的chromedriver
+            if os.path.exists("chromedriver.exe"): #如果存在本地文件
+                try:
+                        driver = webdriver.Chrome(executable_path='chromedriver.exe',options=ch_options) 
+                except:
+                    os.remove("chromedriver.exe")
+                    strLog = '本地存在chromedriver，已移除'
+                    print(strLog)
+                    self.writelog(strLog)
+                    driver_path = autodriver.chromedriver(platform = self.json_setting['platform'])
+                    print(driver_path)
+                    driver = webdriver.Chrome(executable_path=driver_path,options=ch_options)
+            else:   #如果不存在本地文件，则下载
+                driver_path = autodriver.chromedriver(platform = self.json_setting['platform'])
+                strLog = "已下载chromedriver驱动,路径为{0}".format(driver_path)
+                print(strLog)
+                self.writelog(strLog)
+                driver = webdriver.Chrome(executable_path=driver_path,options=ch_options)
+        return driver
 
 if __name__ == '__main__':
     json_setting = json.load(open('setting.json', 'r', encoding='utf-8')) #读取setting.json的信息
